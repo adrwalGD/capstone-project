@@ -1,0 +1,62 @@
+---
+# From Jnekins docs installation is:
+# sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+#   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+# echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+#   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+#   /etc/apt/sources.list.d/jenkins.list > /dev/null
+# sudo apt-get update
+# sudo apt-get install jenkins
+
+- name: Install Docker engine on a Ubuntu machine
+  hosts: jenkins-vm
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - fontconfig
+        - openjdk-17-jre
+
+    - name: Check Java version
+      ansible.builtin.command:
+        cmd: java -version
+      register: java_version
+      changed_when: false
+      failed_when: java_version.rc != 0
+
+    - name: Print Java version
+      ansible.builtin.debug:
+        msg: "{{ java_version.stderr }}"
+
+    - name: Add Jenkins GPG key
+      ansible.builtin.get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        dest: /usr/share/keyrings/jenkins-keyring.asc
+        mode: '644'
+
+    # - name: Add Jenkins GPG key
+    #   ansible.builtin.shell:
+    #     cmd: wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+    #   args:
+    #     creates: /usr/share/keyrings/jenkins-keyring.asc
+
+    - name: Add Jenkins repository
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
+        state: present
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Jenkins
+      ansible.builtin.apt:
+        name: jenkins
+        state: present
