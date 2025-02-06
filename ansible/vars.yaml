@@ -1,0 +1,4 @@
+jenkins_api_token: 11f6700d005b1f02e582e0dc731916fbb1
+jenkins_url_for_agent: http://localhost:8080/
+jenkins_agent_workdir: /var/lib/jenkins-agent
+jenkins_agent_name: jenkins-agent

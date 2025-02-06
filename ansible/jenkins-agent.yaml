@@ -1,0 +1,69 @@
+---
+# From Jnekins docs installation is:
+# sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+#   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+# echo "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc]" \
+#   https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+#   /etc/apt/sources.list.d/jenkins.list > /dev/null
+# sudo apt-get update
+# sudo apt-get install jenkins
+
+- name: Install Docker engine on a Ubuntu machine
+  hosts: jenkins-vm
+  become: true
+  vars_files:
+    - ./vars.yaml
+  tasks:
+
+    - name: Create agent work dir
+      ansible.builtin.file:
+        path: "{{ jenkins_agent_workdir }}"
+        state: directory
+        owner: jenkins
+        group: jenkins
+        mode: '0755'
+
+    - name: Download agent secret
+      ansible.builtin.uri:
+        url: "{{ jenkins_url_for_agent }}computer/{{ jenkins_agent_name }}/jenkins-agent.jnlp"
+        dest: "{{ jenkins_agent_workdir }}/jenkins-agent.jnlp"
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+        return_content: true
+        force_basic_auth: true
+        user: admin
+        password: "{{ jenkins_api_token }}"
+      register: jnlp_content
+
+    - name: Extract secret from JNLP file
+      ansible.builtin.set_fact:
+        agent_secret: "{{ jnlp_content.content | regex_search('.*<application-desc><argument>([a-zA-Z0-9]*)</argument>.*', '\\1') | first }}"
+
+    - name: Print agent secret
+      ansible.builtin.debug:
+        msg: "{{ agent_secret }}"
+
+    - name: Download agent jar
+      ansible.builtin.get_url:
+        url: "{{ jenkins_url_for_agent }}jnlpJars/agent.jar"
+        dest: "{{ jenkins_agent_workdir }}/agent.jar"
+        owner: jenkins
+        group: jenkins
+        mode: '0644'
+
+    - name: Configure agent as a service
+      ansible.builtin.template:
+        src: jenkins-agent.service.j2
+        dest: "/etc/systemd/system/{{ jenkins_agent_name }}.service"
+        owner: root
+        group: root
+        mode: '0644'
+      register: template_result
+
+    - name: Start agent service
+      ansible.builtin.systemd:
+        name: "{{ jenkins_agent_name }}"
+        state: restarted
+        daemon_reload: true
+        enabled: true
