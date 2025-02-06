@@ -41,12 +41,6 @@
         dest: /usr/share/keyrings/jenkins-keyring.asc
         mode: '644'
 
-    # - name: Add Jenkins GPG key
-    #   ansible.builtin.shell:
-    #     cmd: wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-    #   args:
-    #     creates: /usr/share/keyrings/jenkins-keyring.asc
-
     - name: Add Jenkins repository
       ansible.builtin.apt_repository:
         repo: deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
@@ -60,3 +54,18 @@
       ansible.builtin.apt:
         name: jenkins
         state: present
+
+    - name: Wait for Jenkins to start
+      ansible.builtin.wait_for:
+        port: 8080
+        timeout: 300
+
+    - name: Print Jenkins initial admin password
+      ansible.builtin.command: cat /var/lib/jenkins/secrets/initialAdminPassword
+      register: jenkins_password
+      changed_when: false
+      failed_when: jenkins_password.rc != 0
+
+    - name: Print Jenkins initial admin password
+      ansible.builtin.debug:
+        msg: "Jenkins initial admin password: {{ jenkins_password.stdout }}"
