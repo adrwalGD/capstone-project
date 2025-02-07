@@ -1,5 +1,5 @@
 ---
-- name: Install Docker engine on a Ubuntu machine
+- name: Install Jenkins agent on VM
   hosts: jenkins-vm
   become: true
   vars_files:
