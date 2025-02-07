@@ -15,7 +15,7 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "adrwal-rg"
+  name     = "adrwal-rg-prod"
   location = "westeurope"
 }
 
@@ -134,7 +134,7 @@ resource "azurerm_linux_virtual_machine" "jenkins_vm" {
     name                = "jenkins-vm"
     resource_group_name = azurerm_resource_group.rg.name
     location            = azurerm_resource_group.rg.location
-    size                = "Standard_D2s_v3"
+    size                = "Standard_B1s"
     admin_username      = "azureuser"
     network_interface_ids = [azurerm_network_interface.main_nic.id]
     admin_ssh_key {

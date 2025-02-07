@@ -1,0 +1,41 @@
+---
+- name: Install Docker engine on a Ubuntu machine
+  hosts: all
+  become: true
+  tasks:
+    - name: Add Docker GPG key
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+      args:
+        creates: /etc/apt/keyrings/docker.asc
+
+    - name: Get dpkg print architecture
+      ansible.builtin.shell: dpkg --print-architecture
+      register: dpkg_print_architecture
+
+    - name: Add Docker repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch={{ dpkg_print_architecture.stdout }}] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Dependencies
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - ca-certificates
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+
+    - name: Start Docker
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
