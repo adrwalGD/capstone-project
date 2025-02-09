@@ -5,27 +5,33 @@ pipeline {
         ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
     }
 
-  stages {
-    stage('Checkout Code') {
-        steps {
-            checkout scm
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform-prod') {
+                    sh "terraform plan"
+                }
+            }
         }
     }
 
-    stage('Terraform Init') {
-      steps {
-        dir('terraform-prod') {
-          sh 'terraform init'
+    post {
+        always {
+            cleanWs()
         }
-      }
     }
-
-    stage('Terraform Apply') {
-      steps {
-        dir('terraform-prod') {
-          sh "terraform plan"
-        }
-      }
-    }
-  }
 }
