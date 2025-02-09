@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+    environment {
+        ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
+    }
+
   stages {
     stage('Checkout Code') {
         steps {
