@@ -1,15 +1,24 @@
 pipeline {
     agent any
 
-    parameters {
-        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
-    }
-
     environment {
         ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
     }
 
     stages {
+        stage("Get Docker tag form user") {
+            steps {
+                script {
+                    def userInput = input(
+                        message: 'Which Docker tag to deploy?',
+                        parameters: [
+                            string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Enter docker tag')
+                        ]
+                    )
+                }
+            }
+        }
+
         stage('Checkout Code') {
             steps {
                 checkout scm
@@ -36,7 +45,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 dir('terraform-prod') {
-                    sh "echo ${params.DOCKER_TAG}"
+                    sh "echo ${env.DOCKER_TAG}"
                 }
             }
         }
