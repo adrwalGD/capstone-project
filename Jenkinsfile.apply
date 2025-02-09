@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'DOCKER_TAG', defaultValue: 'latest', description: 'Docker image tag to deploy')
+    }
+
+    environment {
+        ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform-prod') {
+                    sh "echo ${params.DOCKER_TAG}"
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
