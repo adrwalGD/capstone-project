@@ -1,0 +1,35 @@
+---
+- name: Install terraform on Ubuntu VM
+  hosts: jenkins-vm
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Add hashicorp GPG key
+      ansible.builtin.shell:
+        cmd: |
+          wget -O- https://apt.releases.hashicorp.com/gpg | \
+          gpg --dearmor | \
+          sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+
+    - name: Get release
+      ansible.builtin.command: lsb_release -cs
+      register: release
+      changed_when: false
+
+    - name: Add hashicorp repository
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ release.stdout }} main
+        filename: hashicorp
+        state: present
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install Terraform
+      ansible.builtin.apt:
+        name: terraform
+        state: present
