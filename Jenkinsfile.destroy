@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Confirm Destroy') {
+            steps {
+                script {
+                    def userInput = input(
+                        id: 'confirm',
+                        message: 'Do you want to apply the Terraform destroy?',
+                        parameters: [
+                            booleanParam(defaultValue: false, description: 'Apply the Terraform destory?', name: 'confirm')
+                        ]
+                    )
+                    if (!userInput) {
+                        error('Pipeline aborted by user')
+                    }
+                }
+            }
+        }
+
+
+        stage('Terraform Destory') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform destroy -auto-approve'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
