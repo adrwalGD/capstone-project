@@ -17,3 +17,8 @@ output "vnet_name" {
   value       = azurerm_virtual_network.vnet.name
   description = "The name of the virtual network."
 }
+
+output "subnet_address_space" {
+  value       = azurerm_subnet.subnet.address_prefixes
+  description = "The address prefix of the subnet."
+}
