@@ -76,6 +76,33 @@ resource "azurerm_firewall_nat_rule_collection" "example" {
     translated_address    = var.load_balancer_ip
     protocols             = ["TCP"]
   }
+  rule {
+    name                  = "testrule2"
+    source_addresses      = ["*"]
+    destination_ports     = ["22"]
+    destination_addresses = [azurerm_public_ip.fw_ip.ip_address]
+    translated_port       = 22
+    translated_address    = "10.0.2.6"
+    protocols             = ["TCP"]
+  }
+}
+
+
+# allow all TEMP RULE
+resource "azurerm_firewall_network_rule_collection" "all" {
+  name                = "testcollection-all"
+  azure_firewall_name = azurerm_firewall.firewall.name
+  resource_group_name = var.resource_group_name
+  priority            = 100
+  action              = "Allow"
+
+  rule {
+    name = "AllowAll"
+    source_addresses = ["*"]
+    destination_addresses = ["*"]
+    destination_ports = ["*"]
+    protocols = ["Any"]
+  }
 }
 
 # allow all outbound traffic
@@ -83,7 +110,7 @@ resource "azurerm_firewall_network_rule_collection" "example" {
   name                = "testcollection"
   azure_firewall_name = azurerm_firewall.firewall.name
   resource_group_name = var.resource_group_name
-  priority            = 100
+  priority            = 200
   action              = "Allow"
 
   rule {

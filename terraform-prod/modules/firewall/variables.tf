@@ -27,3 +27,24 @@ variable "load_balancer_ip" {
   type        = string
   description = "IP address for the load balancer"
 }
+
+    # name                  = "testrule"
+    # source_addresses      = ["*"]
+    # destination_ports     = ["80"]
+    # destination_addresses = [azurerm_public_ip.fw_ip.ip_address]
+    # translated_port       = 80
+    # translated_address    = var.load_balancer_ip
+    # protocols             = ["TCP"]
+variable "nat_rules" {
+  description = "A list of NAT rules."
+  type = list(object({
+    priority                          = number
+    name                       = string
+    source_addresses                   = list(string)
+    destination_ports         = list(string)
+    destination_addresses            = list(string)
+    translated_port                   = number
+    translated_address = string
+    protocols        = list(string)
+  }))
+}
