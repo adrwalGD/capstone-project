@@ -78,6 +78,23 @@ resource "azurerm_firewall_nat_rule_collection" "example" {
   }
 }
 
+# allow all outbound traffic
+resource "azurerm_firewall_network_rule_collection" "example" {
+  name                = "testcollection"
+  azure_firewall_name = azurerm_firewall.firewall.name
+  resource_group_name = var.resource_group_name
+  priority            = 100
+  action              = "Allow"
+
+  rule {
+    name = "AllowAllOutbound"
+    source_addresses = [var.resources_subnet_ip]
+    destination_addresses = ["*"]
+    destination_ports = ["*"]
+    protocols = ["Any"]
+  }
+}
+
 # Route Table for Firewall
 resource "azurerm_route_table" "fw_rt" {
   name                = "example-rt"
@@ -85,6 +102,7 @@ resource "azurerm_route_table" "fw_rt" {
   resource_group_name = var.resource_group_name
 }
 
+# Route all traffic through the firewall
 resource "azurerm_route" "route_to_firewall" {
   name                   = "route-through-firewall"
   route_table_name       = azurerm_route_table.fw_rt.name
@@ -92,4 +110,9 @@ resource "azurerm_route" "route_to_firewall" {
   address_prefix         = "0.0.0.0/0"
   next_hop_type          = "VirtualAppliance"
   next_hop_in_ip_address = azurerm_firewall.firewall.ip_configuration[0].private_ip_address
+}
+
+resource "azurerm_subnet_route_table_association" "example" {
+  subnet_id      = var.resource_subnet_id
+  route_table_id = azurerm_route_table.fw_rt.id
 }

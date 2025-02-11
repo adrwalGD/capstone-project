@@ -18,6 +18,11 @@ variable "resources_subnet_ip" {
   description = "IP address with mask for the subnet"
 }
 
+variable "resource_subnet_id" {
+  type        = string
+  description = "ID of the subnet"
+}
+
 variable "load_balancer_ip" {
   type        = string
   description = "IP address for the load balancer"
