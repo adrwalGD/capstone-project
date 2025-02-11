@@ -71,6 +71,39 @@ pipeline {
             }
         }
 
+        stage('Create terraform plan') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform plan -out=plan.out -var \'regenerate_image=true\''
+                }
+            }
+        }
+
+        stage('Confirm Apply') {
+            steps {
+                script {
+                    def userInput = input(
+                        id: 'confirm',
+                        message: 'Do you want to apply the Terraform plan?',
+                        parameters: [
+                            booleanParam(defaultValue: false, description: 'Apply the Terraform plan?', name: 'confirm')
+                        ]
+                    )
+                    if (!userInput) {
+                        error('Pipeline aborted by user')
+                    }
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('terraform-prod') {
+                    sh 'terraform apply -auto-approve plan.out'
+                }
+            }
+        }
+
     }
 
     post {
