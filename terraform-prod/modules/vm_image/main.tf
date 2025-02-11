@@ -6,20 +6,11 @@ resource "azurerm_network_interface" "temp_nic" {
     name                          = "internal"
     subnet_id                     = var.temp_vm_subnet_id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id = azurerm_public_ip.temp_vm_pip[0].id
   }
 
   count = var.regenerate_image ? 1 : 0
 }
 
-resource "azurerm_public_ip" "temp_vm_pip" {
-  name                = "${var.resources_name_prefix}base-vm-temp-pip"
-  resource_group_name = var.resource_group_name
-  location            = var.location
-  allocation_method   = "Dynamic"
-
-  count = var.regenerate_image ? 1 : 0
-}
 
 resource "azurerm_virtual_machine" "base_temp_vm" {
   name                          = "${var.resources_name_prefix}base-temp-vm"
@@ -69,7 +60,7 @@ resource "azurerm_virtual_machine_extension" "vm_script" {
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
-  settings             = <<SETTINGS
+  protected_settings =               <<SETTINGS
     {
         "script": "${base64encode(var.provision_script_path == "" ? "" : file(var.provision_script_path))}"
     }
@@ -111,6 +102,7 @@ resource "azurerm_image" "img_from_managed_disk" {
   resource_group_name = var.resource_group_name
 
   os_disk {
+    storage_type = "Premium_LRS"
     os_type         = "Linux"
     os_state        = "Generalized"
     managed_disk_id = length(azurerm_managed_disk.disk_from_snap) > 0 ? azurerm_managed_disk.disk_from_snap[0].id : null

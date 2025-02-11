@@ -3,7 +3,7 @@ output "image_id" {
   description = "The ID of VM image."
 }
 
-output "vm_pip" {
-  value       = azurerm_public_ip.vm_ip.ip_address
-  description = "The public IP address of the VM."
+output "vm_private_ip" {
+  value       = azurerm_network_interface.temp_nic[0].private_ip_address
+  description = "The private IP address of the VM."
 }
