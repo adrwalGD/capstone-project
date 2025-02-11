@@ -35,16 +35,45 @@ variable "load_balancer_ip" {
     # translated_port       = 80
     # translated_address    = var.load_balancer_ip
     # protocols             = ["TCP"]
-variable "nat_rules" {
+variable "fw_nat_rules" {
   description = "A list of NAT rules."
   type = list(object({
     priority                          = number
     name                       = string
     source_addresses                   = list(string)
     destination_ports         = list(string)
-    destination_addresses            = list(string)
     translated_port                   = number
     translated_address = string
     protocols        = list(string)
+  }))
+}
+
+
+# # allow all outbound traffic
+# resource "azurerm_firewall_network_rule_collection" "example" {
+#   name                = "testcollection"
+#   azure_firewall_name = azurerm_firewall.firewall.name
+#   resource_group_name = var.resource_group_name
+#   priority            = 200
+#   action              = "Allow"
+
+#   rule {
+#     name = "AllowAllOutbound"
+#     source_addresses = [var.resources_subnet_ip]
+#     destination_addresses = ["*"]
+#     destination_ports = ["*"]
+#     protocols = ["Any"]
+#   }
+# }
+variable "fw_network_rules" {
+  description = "A list of network rules."
+  type = list(object({
+    name                       = string
+    priority                   = number
+    action                  = string
+    source_addresses                   = list(string)
+    destination_addresses          = list(string)
+    destination_ports     = list(string)
+    protocols      = list(string)
   }))
 }

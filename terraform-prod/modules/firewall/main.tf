@@ -59,66 +59,43 @@ resource "azurerm_firewall_policy" "firewall_policy" {
   resource_group_name = var.resource_group_name
 }
 
+resource "azurerm_firewall_nat_rule_collection" "firewall_nat_rules_collections" {
+  for_each = { for rule in var.fw_nat_rules : rule.name => rule }
 
-resource "azurerm_firewall_nat_rule_collection" "example" {
-  name                = "testcollection"
+  name                = each.value.name
   azure_firewall_name = azurerm_firewall.firewall.name
   resource_group_name = var.resource_group_name
-  priority            = 100
+  priority            = each.value.priority
   action              = "Dnat"
 
   rule {
-    name                  = "testrule"
-    source_addresses      = ["*"]
-    destination_ports     = ["80"]
+    name                  = each.value.name
+    source_addresses      = each.value.source_addresses
+    destination_ports     = each.value.destination_ports
     destination_addresses = [azurerm_public_ip.fw_ip.ip_address]
-    translated_port       = 80
-    translated_address    = var.load_balancer_ip
-    protocols             = ["TCP"]
-  }
-  rule {
-    name                  = "testrule2"
-    source_addresses      = ["*"]
-    destination_ports     = ["22"]
-    destination_addresses = [azurerm_public_ip.fw_ip.ip_address]
-    translated_port       = 22
-    translated_address    = "10.0.2.6"
-    protocols             = ["TCP"]
+    translated_port       = each.value.translated_port
+    translated_address    = each.value.translated_address
+    protocols             = each.value.protocols
+
   }
 }
 
 
-# allow all TEMP RULE
-resource "azurerm_firewall_network_rule_collection" "all" {
-  name                = "testcollection-all"
+resource "azurerm_firewall_network_rule_collection" "fw_network_rules_collections" {
+  for_each = { for rule in var.fw_network_rules : rule.name => rule }
+
+  name                = each.value.name
   azure_firewall_name = azurerm_firewall.firewall.name
   resource_group_name = var.resource_group_name
-  priority            = 100
-  action              = "Allow"
+  priority            = each.value.priority
+  action              = each.value.action
 
   rule {
-    name = "AllowAll"
-    source_addresses = ["*"]
-    destination_addresses = ["*"]
-    destination_ports = ["*"]
-    protocols = ["Any"]
-  }
-}
-
-# allow all outbound traffic
-resource "azurerm_firewall_network_rule_collection" "example" {
-  name                = "testcollection"
-  azure_firewall_name = azurerm_firewall.firewall.name
-  resource_group_name = var.resource_group_name
-  priority            = 200
-  action              = "Allow"
-
-  rule {
-    name = "AllowAllOutbound"
-    source_addresses = [var.resources_subnet_ip]
-    destination_addresses = ["*"]
-    destination_ports = ["*"]
-    protocols = ["Any"]
+    name = each.value.name
+    source_addresses = each.value.source_addresses
+    destination_addresses = each.value.destination_addresses
+    destination_ports = each.value.destination_ports
+    protocols = each.value.protocols
   }
 }
 
