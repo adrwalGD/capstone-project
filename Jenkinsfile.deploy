@@ -8,7 +8,7 @@ pipeline {
     environment {
         ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
         ACR_LOGIN_SERVER = "adrwalacr.azurecr.io"
-        ACR_USER_PASS_CREDS_ID = 'acr-login-password'
+        ACR_USER_PASS_CREDS_ID = 'ACR-user-pass'
     }
 
     stages {
