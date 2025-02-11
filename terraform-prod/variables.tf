@@ -15,3 +15,9 @@ variable "vmss_sku" {
   description = "SKU of the VMs"
   default     = "Standard_B1s"
 }
+
+variable "regenerate_image" {
+  type        = bool
+  default     = false
+  description = "Should new base image be created"
+}

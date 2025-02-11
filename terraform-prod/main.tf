@@ -27,97 +27,7 @@ resource "azurerm_resource_group" "rg" {
   location = "westeurope"
 }
 
-# ======== Network =========
-
-# resource "azurerm_virtual_network" "main_vnet" {
-#   name                = "adrwal-vnet"
-#   resource_group_name = azurerm_resource_group.rg.name
-#   location            = azurerm_resource_group.rg.location
-#   address_space       = ["10.0.0.0/16"]
-# }
-
-# resource "azurerm_subnet" "main_subnet" {
-#   name                 = "adrwal-subnet"
-#   resource_group_name  = azurerm_resource_group.rg.name
-#   virtual_network_name = azurerm_virtual_network.main_vnet.name
-#   address_prefixes     = ["10.0.1.0/24"]
-# }
-
-# # nsg
-# resource "azurerm_network_security_group" "main_nsg" {
-#   name                = "adrwal-nsg"
-#   resource_group_name = azurerm_resource_group.rg.name
-#   location            = azurerm_resource_group.rg.location
-# }
-
-# # http rule
-# resource "azurerm_network_security_rule" "http_rule" {
-#   name                        = "http_rule"
-#   priority                    = 1001
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_range      = "80"
-#   source_address_prefix       = "*"
-#   destination_address_prefix  = "*"
-#   resource_group_name         = azurerm_resource_group.rg.name
-#   network_security_group_name = azurerm_network_security_group.main_nsg.name
-# }
-
-# # ssh rule
-# resource "azurerm_network_security_rule" "ssh_rule" {
-#   name                        = "ssh_rule"
-#   priority                    = 1002
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_range      = "22"
-#   source_address_prefix       = "*"
-#   destination_address_prefix  = "*"
-#   resource_group_name         = azurerm_resource_group.rg.name
-#   network_security_group_name = azurerm_network_security_group.main_nsg.name
-# }
-
-# # https rule
-# resource "azurerm_network_security_rule" "https_rule" {
-#   name                        = "https_rule"
-#   priority                    = 1003
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_range      = "443"
-#   source_address_prefix       = "*"
-#   destination_address_prefix  = "*"
-#   resource_group_name         = azurerm_resource_group.rg.name
-#   network_security_group_name = azurerm_network_security_group.main_nsg.name
-# }
-
-# # jenkins 8080
-# resource "azurerm_network_security_rule" "jenkins_rule" {
-#   name                        = "jenkins_rule"
-#   priority                    = 1004
-#   direction                   = "Inbound"
-#   access                      = "Allow"
-#   protocol                    = "Tcp"
-#   source_port_range           = "*"
-#   destination_port_range      = "8080"
-#   source_address_prefix       = "*"
-#   destination_address_prefix  = "*"
-#   resource_group_name         = azurerm_resource_group.rg.name
-#   network_security_group_name = azurerm_network_security_group.main_nsg.name
-# }
-
-# resource "azurerm_subnet_network_security_group_association" "nsg_for_main_subnet" {
-#   subnet_id                 = azurerm_subnet.main_subnet.id
-#   network_security_group_id = azurerm_network_security_group.main_nsg.id
-# }
-
-# ======== End Network =========
-
-# Containe Registry
+# Container Registry
 resource "azurerm_container_registry" "acr" {
   name                = "adrwalacr"
   resource_group_name = azurerm_resource_group.rg.name
@@ -127,52 +37,6 @@ resource "azurerm_container_registry" "acr" {
 }
 
 # ========== start mysql db ============
-
-
-# resource "azurerm_subnet" "example" {
-#   name                 = "adrwal-example-sn"
-#   resource_group_name  = azurerm_resource_group.rg.name
-#   virtual_network_name = azurerm_virtual_network.main_vnet.name
-#   address_prefixes     = ["10.0.2.0/24"]
-#   service_endpoints    = ["Microsoft.Storage"]
-#   delegation {
-#     name = "fs"
-#     service_delegation {
-#       name = "Microsoft.DBforMySQL/flexibleServers"
-#       actions = [
-#         "Microsoft.Network/virtualNetworks/subnets/join/action",
-#       ]
-#     }
-#   }
-# }
-
-# resource "azurerm_private_dns_zone" "example" {
-#   name                = "adrwal-example.mysql.database.azure.com"
-#   resource_group_name = azurerm_resource_group.rg.name
-# }
-
-# resource "azurerm_private_dns_zone_virtual_network_link" "example" {
-#   name                  = "adrwal-exampleVnetZone.com"
-#   private_dns_zone_name = azurerm_private_dns_zone.example.name
-#   virtual_network_id    = azurerm_virtual_network.main_vnet.id
-#   resource_group_name   = azurerm_resource_group.rg.name
-# }
-
-# resource "azurerm_mysql_flexible_server" "example" {
-#   name                   = "adrwal-example-fs"
-#   resource_group_name    = azurerm_resource_group.rg.name
-#   location               = azurerm_resource_group.rg.location
-#   administrator_login    = "adrwalpetclinic"
-#   administrator_password = "Petclinicmodule123"
-#   backup_retention_days  = 7
-#   delegated_subnet_id    = azurerm_subnet.example.id
-#   private_dns_zone_id    = azurerm_private_dns_zone.example.id
-#   sku_name               = "B_Standard_B1ms"
-
-#   depends_on = [azurerm_private_dns_zone_virtual_network_link.example]
-# }
-
-# ========= End mysql db =========
 
 resource "azurerm_mysql_flexible_server" "my_sql_db" {
   name                   = "adrwal-mysql-fs"
@@ -202,8 +66,7 @@ resource "azurerm_mysql_flexible_server_firewall_rule" "allow_all" {
   end_ip_address      = "255.255.255.255"
 }
 
-
-
+# ========= End mysql db =========
 
 
 module "network_module" {
@@ -211,7 +74,7 @@ module "network_module" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   vnet_address        = "10.0.0.0/16"
-  subnet_address      = "10.0.2.0/24"
+  subnet_address      = "10.0.2.0/24" // change to dynamic or variable
   nsg_rules = [{
     name                       = "ssh"
     priority                   = 1001
@@ -267,6 +130,46 @@ module "firewall" {
   load_balancer_ip     = module.load_balancer.private_ip
   resources_subnet_ip  = "10.0.2.0/24"
   resource_subnet_id = module.network_module.subnet_id
+  fw_nat_rules = [
+    {
+      destination_ports = ["80"]
+      name = "http-lb-rule"
+      protocols = ["TCP"]
+      priority = 100
+      source_addresses = ["*"]
+      translated_address = module.load_balancer.private_ip
+      translated_port = 80
+    },
+    {
+      destination_ports = ["8080"]
+      name = "staging-app-rule"
+      protocols = ["TCP"]
+      priority = 200
+      source_addresses = ["*"]
+      translated_address = module.vm_image.vm_private_ip
+      translated_port = 8080
+    },
+    {
+      name = "staging-vm-ssh-rule"
+      source_addresses = ["*"]
+      destination_ports = ["22"]
+      translated_port = 22
+      translated_address = module.vm_image.vm_private_ip
+      protocols = ["TCP"]
+      priority = 300
+    }
+  ]
+  fw_network_rules = [
+    {
+      action = "Allow"
+      destination_addresses = ["*"]
+      destination_ports = ["*"]
+      name = "allow-all-outbound"
+      priority = 100
+      protocols = ["Any"]
+      source_addresses = ["10.0.2.0/24"]
+    }
+  ]
 }
 
 module "load_balancer" {
@@ -278,6 +181,15 @@ module "load_balancer" {
   health_check_path   = "/"
   health_check_port   = 80
   subnet_id           = module.network_module.subnet_id
+}
+
+module "vm_image" {
+  source                = "./modules/vm_image"
+  location              = azurerm_resource_group.rg.location
+  resource_group_name   = azurerm_resource_group.rg.name
+  provision_script_path = "./scripts/deploy.sh"
+  temp_vm_subnet_id     = module.network_module.subnet_id
+  regenerate_image      = var.regenerate_image
 }
 
 resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
