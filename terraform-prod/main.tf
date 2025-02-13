@@ -256,7 +256,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     type_handler_version = "2.0"
     protected_settings = <<SETTINGS
         {
-            "script": "${base64encode(templatefile(var.deploy_script_path, { image_tag=var.deploy_tag } ))}"
+            "script": "${base64encode(templatefile(var.deploy_script_path, { image_tag=var.deploy_tag, mysql_fqdn=azurerm_mysql_flexible_server.my_sql_db.fqdn, mysql_user=azurerm_mysql_flexible_server.my_sql_db.administrator_login, mysql_pass=azurerm_mysql_flexible_server.my_sql_db.administrator_password } ))}"
         }
     SETTINGS
   }
