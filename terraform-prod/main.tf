@@ -191,7 +191,7 @@ module "vm_image" {
   source                = "./modules/vm_image"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
-  provision_script = templatefile("./scripts/init.sh.tpl", {acr_user = azurerm_container_registry.acr.admin_username, acr_pass = azurerm_container_registry.acr.admin_password, acr_url = azurerm_container_registry.acr.login_server})
+  provision_script = templatefile("./scripts/init.sh.tpl", {acr_user = azurerm_container_registry.acr.admin_username, acr_pass = azurerm_container_registry.acr.admin_password, acr_url = azurerm_container_registry.acr.login_server, image_tag=var.staging_deploy_tag})
   temp_vm_subnet_id     = module.network_module.subnet_id
   regenerate_image      = var.regenerate_image
 }
@@ -256,7 +256,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     type_handler_version = "2.0"
     protected_settings = <<SETTINGS
         {
-            "script": "${base64encode(var.deploy_script_path == "" ? "" : templatefile(var.deploy_script_path, { image_tag=var.deploy_tag } ))}"
+            "script": "${base64encode(templatefile(var.deploy_script_path, { image_tag=var.deploy_tag } ))}"
         }
     SETTINGS
   }

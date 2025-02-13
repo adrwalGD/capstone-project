@@ -27,3 +27,9 @@ variable "deploy_tag" {
   description = "Tag for the deployment"
   default     = "latest"
 }
+
+variable "staging_deploy_tag" {
+  type        = string
+  description = "Tag for the staging deployment"
+  default     = "latest"
+}

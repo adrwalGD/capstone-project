@@ -18,3 +18,9 @@ apt-get update
 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
 docker login -u ${acr_user} -p ${acr_pass} ${acr_url}
+
+docker stop spring-petclinic
+if docker rm spring-petclinic; then
+  echo "removed previous version"
+fi
+docker run -d -p 80:8080 --name spring-petclinic adrwalacr.azurecr.io/spring-petclinic:${image_tag}

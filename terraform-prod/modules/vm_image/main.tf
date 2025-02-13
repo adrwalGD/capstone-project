@@ -70,7 +70,7 @@ resource "azurerm_virtual_machine_extension" "vm_script" {
   type_handler_version = "2.0"
   protected_settings =               <<SETTINGS
     {
-        "script": "${base64encode(var.provision_script == "" ? "" : var.provision_script)}"
+        "script": "${base64encode(var.provision_script)}"
     }
 SETTINGS
 
