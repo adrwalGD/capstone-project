@@ -1,7 +1,7 @@
-variable "provision_script_path" {
+variable "deploy_script_path" {
   type        = string
-  description = "Path to the provision script"
-  default     = "./script.sh"
+  description = "Deploy script path"
+  default     = "./scripts/deploy.sh.tpl"
 }
 
 variable "vmss_username" {
@@ -20,4 +20,10 @@ variable "regenerate_image" {
   type        = bool
   default     = false
   description = "Should new base image be created"
+}
+
+variable "deploy_tag" {
+  type        = string
+  description = "Tag for the deployment"
+  default     = "latest"
 }

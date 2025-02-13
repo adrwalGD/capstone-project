@@ -10,3 +10,8 @@ output "acr_admin_password" {
 output "mysql_db_fqdn" {
   value = azurerm_mysql_flexible_server.my_sql_db.fqdn
 }
+
+output "firewall_pip" {
+  value = module.firewall.firewall_public_ip
+  description = "The public IP address of the firewall."
+}

@@ -146,14 +146,18 @@ module "firewall" {
       protocols = ["TCP"]
       priority = 200
       source_addresses = ["*"]
+      # translated_address = module.vm_image.vm_private_ip != null ? module.vm_image.vm_private_ip : "1.1.1.1"
+      # above better but Azure takes 8-10 minutes to to update firewall role. So below and targetting only certain modules (vm_image) is faster for development
       translated_address = module.vm_image.vm_private_ip
-      translated_port = 8080
+      translated_port = 80
     },
     {
       name = "staging-vm-ssh-rule"
       source_addresses = ["*"]
       destination_ports = ["22"]
       translated_port = 22
+      # translated_address = module.vm_image.vm_private_ip != null ? module.vm_image.vm_private_ip : "1.1.1.1"
+      # above better but Azure takes 8-10 minutes to to update firewall role. So below and targetting only certain modules (vm_image) is faster for development
       translated_address = module.vm_image.vm_private_ip
       protocols = ["TCP"]
       priority = 300
@@ -187,9 +191,14 @@ module "vm_image" {
   source                = "./modules/vm_image"
   location              = azurerm_resource_group.rg.location
   resource_group_name   = azurerm_resource_group.rg.name
-  provision_script_path = "./scripts/deploy.sh"
+  provision_script = templatefile("./scripts/init.sh.tpl", {acr_user = azurerm_container_registry.acr.admin_username, acr_pass = azurerm_container_registry.acr.admin_password, acr_url = azurerm_container_registry.acr.login_server})
   temp_vm_subnet_id     = module.network_module.subnet_id
   regenerate_image      = var.regenerate_image
+}
+
+
+resource "terraform_data" "redeploy" {
+  input = false
 }
 
 resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
@@ -204,11 +213,16 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     public_key = file("./ssh-keys")
   }
 
-  source_image_reference {
-    publisher = "Canonical"
-    offer     = "ubuntu-24_04-lts"
-    sku       = "server"
-    version   = "latest"
+  source_image_id = module.vm_image.image_id
+
+  upgrade_mode = "Rolling"
+  health_probe_id = module.load_balancer.health_probe_id
+
+  rolling_upgrade_policy {
+    max_batch_instance_percent              = 20  # Upgrade in batches of % at a time
+    max_unhealthy_instance_percent          = 20  # Allow % of instances to be unhealthy
+    max_unhealthy_upgraded_instance_percent = 100   # Stop upgrading if % of the upgraded VMs fail
+    pause_time_between_batches              = "PT30S"  # Wait 30s between batches
   }
 
   os_disk {
@@ -229,6 +243,12 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     }
   }
 
+  lifecycle {
+    replace_triggered_by = [
+      terraform_data.redeploy
+    ]
+  }
+
   extension {
     name                 = "adrwal-vmss-script-landing-page-script"
     publisher            = "Microsoft.Azure.Extensions"
@@ -236,7 +256,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     type_handler_version = "2.0"
     protected_settings = <<SETTINGS
         {
-            "script": "${base64encode(var.provision_script_path == "" ? "" : file(var.provision_script_path))}"
+            "script": "${base64encode(var.deploy_script_path == "" ? "" : templatefile(var.deploy_script_path, { image_tag=var.deploy_tag } ))}"
         }
     SETTINGS
   }
