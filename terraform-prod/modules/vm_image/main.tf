@@ -52,6 +52,14 @@ resource "azurerm_virtual_machine" "base_temp_vm" {
   }
 
   count = var.regenerate_image ? 1 : 0
+
+  lifecycle {
+    replace_triggered_by = [ terraform_data.script_file_content ]
+  }
+}
+
+resource "terraform_data" "script_file_content" {
+  input =  filesha256(var.provision_script_path)
 }
 
 resource "azurerm_virtual_machine_extension" "vm_script" {
@@ -107,4 +115,8 @@ resource "azurerm_image" "img_from_managed_disk" {
     os_state        = "Generalized"
     managed_disk_id = length(azurerm_managed_disk.disk_from_snap) > 0 ? azurerm_managed_disk.disk_from_snap[0].id : null
   }
+
+  # lifecycle {
+  #   replace_triggered_by = [ azurerm_managed_disk.disk_from_snap ]
+  # }
 }
