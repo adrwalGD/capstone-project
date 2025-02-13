@@ -59,7 +59,7 @@ resource "azurerm_virtual_machine" "base_temp_vm" {
 }
 
 resource "terraform_data" "script_file_content" {
-  input =  filesha256(var.provision_script_path)
+  input =  sha256(var.provision_script)
 }
 
 resource "azurerm_virtual_machine_extension" "vm_script" {
@@ -70,7 +70,7 @@ resource "azurerm_virtual_machine_extension" "vm_script" {
   type_handler_version = "2.0"
   protected_settings =               <<SETTINGS
     {
-        "script": "${base64encode(var.provision_script_path == "" ? "" : file(var.provision_script_path))}"
+        "script": "${base64encode(var.provision_script == "" ? "" : var.provision_script)}"
     }
 SETTINGS
 

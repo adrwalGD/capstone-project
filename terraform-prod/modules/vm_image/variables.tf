@@ -13,10 +13,10 @@ variable "temp_vm_subnet_id" {
   description = "ID of the subnet to deploy temporary VM"
 }
 
-variable "provision_script_path" {
+variable "provision_script" {
   type        = string
-  description = "Path to the provision script"
-  default     = ""
+  description = "Script to execute on the VM"
+  default = ""
 }
 
 variable "regenerate_image" {
