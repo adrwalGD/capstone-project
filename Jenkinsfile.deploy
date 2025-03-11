@@ -112,7 +112,7 @@ pipeline {
             }
         }
 
-        stage('Confirm Apply') {
+        stage('Confirm staging Terraform apply') {
             steps {
                 script {
                     def userInput = input(
@@ -129,7 +129,7 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Terraform Apply staging') {
             steps {
                 dir('terraform-prod') {
                     sh 'terraform apply -auto-approve create-staging.out'
@@ -145,7 +145,7 @@ pipeline {
             }
         }
 
-        stage('Confirm Apply') {
+        stage('Confirm prod Terraform apply') {
             steps {
                 script {
                     def userInput = input(
@@ -162,7 +162,7 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Terraform Apply prod') {
             steps {
                 dir('terraform-prod') {
                     sh 'terraform apply -auto-approve deploy-production.out'
