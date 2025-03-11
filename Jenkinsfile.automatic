@@ -20,7 +20,15 @@ pipeline {
             }
         }
 
-        stage('Terraform Apply') {
+        stage('Terraform validate') {
+            steps {
+                dir('terraform-prod') {
+                    sh "terraform validate"
+                }
+            }
+        }
+
+        stage('Terraform plan') {
             steps {
                 dir('terraform-prod') {
                     sh "terraform plan"
