@@ -91,11 +91,11 @@ resource "azurerm_firewall_network_rule_collection" "fw_network_rules_collection
   action              = each.value.action
 
   rule {
-    name = each.value.name
-    source_addresses = each.value.source_addresses
+    name                  = each.value.name
+    source_addresses      = each.value.source_addresses
     destination_addresses = each.value.destination_addresses
-    destination_ports = each.value.destination_ports
-    protocols = each.value.protocols
+    destination_ports     = each.value.destination_ports
+    protocols             = each.value.protocols
   }
 }
 

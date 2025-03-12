@@ -12,6 +12,6 @@ output "mysql_db_fqdn" {
 }
 
 output "firewall_pip" {
-  value = module.firewall.firewall_public_ip
+  value       = module.firewall.firewall_public_ip
   description = "The public IP address of the firewall."
 }

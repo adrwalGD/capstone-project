@@ -54,12 +54,12 @@ resource "azurerm_virtual_machine" "base_temp_vm" {
   count = var.regenerate_image ? 1 : 0
 
   lifecycle {
-    replace_triggered_by = [ terraform_data.script_file_content ]
+    replace_triggered_by = [terraform_data.script_file_content]
   }
 }
 
 resource "terraform_data" "script_file_content" {
-  input =  sha256(var.provision_script)
+  input = sha256(var.provision_script)
 }
 
 resource "azurerm_virtual_machine_extension" "vm_script" {
@@ -68,7 +68,7 @@ resource "azurerm_virtual_machine_extension" "vm_script" {
   publisher            = "Microsoft.Azure.Extensions"
   type                 = "CustomScript"
   type_handler_version = "2.0"
-  protected_settings =               <<SETTINGS
+  protected_settings   = <<SETTINGS
     {
         "script": "${base64encode(var.provision_script)}"
     }
@@ -110,7 +110,7 @@ resource "azurerm_image" "img_from_managed_disk" {
   resource_group_name = var.resource_group_name
 
   os_disk {
-    storage_type = "Premium_LRS"
+    storage_type    = "Premium_LRS"
     os_type         = "Linux"
     os_state        = "Generalized"
     managed_disk_id = length(azurerm_managed_disk.disk_from_snap) > 0 ? azurerm_managed_disk.disk_from_snap[0].id : null

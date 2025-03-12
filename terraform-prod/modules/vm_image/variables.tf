@@ -16,7 +16,7 @@ variable "temp_vm_subnet_id" {
 variable "provision_script" {
   type        = string
   description = "Script to execute on the VM"
-  default = ""
+  default     = ""
 }
 
 variable "regenerate_image" {
