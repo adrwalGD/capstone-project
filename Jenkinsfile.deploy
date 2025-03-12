@@ -27,84 +27,6 @@ pipeline {
             }
         }
 
-        // stage("Create deployment script") {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: env.ACR_USER_PASS_CREDS_ID, usernameVariable: 'ACR_USER', passwordVariable: 'ACR_PASS')]) {
-        //             script {
-        //                 def script = """
-        //                 #!/bin/bash
-
-        //                 # 1. Install docker
-        //                 # Add Docker's official GPG key:
-        //                 apt-get update
-        //                 apt-get install ca-certificates curl
-        //                 install -m 0755 -d /etc/apt/keyrings
-        //                 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-        //                 chmod a+r /etc/apt/keyrings/docker.asc
-
-        //                 # Add the repository to Apt sources:
-        //                 echo \
-        //                 "deb [arch=\$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-        //                 \$(. /etc/os-release && echo "\${UBUNTU_CODENAME:-\$VERSION_CODENAME}") stable" | \
-        //                 tee /etc/apt/sources.list.d/docker.list > /dev/null
-        //                 apt-get update
-
-        //                 apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-        //                 # 2. Run the container
-        //                 # Create docker compose file
-        //                 cat <<EOF > ./docker-compose.yml
-        //                 services:
-        //                 petclinic:
-        //                     image: adrwalacr.azurecr.io/spring-petclinic:${params.IMAGE_TAG}
-        //                     container_name: spring-petclinic
-        //                     ports:
-        //                     - 80:8080
-        //                     restart: unless-stopped
-        //                 EOF
-        //                 docker login -u ${ACR_USER} -p ${ACR_PASS} ${env.ACR_LOGIN_SERVER}
-        //                 docker compose up -d --build
-        //                 """
-        //                 writeFile file: './terraform-prod/scripts/deploy.sh', text: script
-        //             }
-        //             sh 'cat ./terraform-prod/scripts/deploy.sh'
-        //         }
-        //     }
-        // }
-
-        // stage('Terraform plan to destory previous staging environment') {
-        //     steps {
-        //         dir('terraform-prod') {
-        //             sh 'terraform plan -out=plan-destroy-staging.out -var \'regenerate_image=false\' -target=module.vm_image'
-        //         }
-        //     }
-        // }
-
-        // stage('Confirm Apply') {
-        //     steps {
-        //         script {
-        //             def userInput = input(
-        //                 id: 'confirm',
-        //                 message: 'Do you want to apply the Terraform plan?',
-        //                 parameters: [
-        //                     booleanParam(defaultValue: false, description: 'Apply the Terraform plan?', name: 'confirm')
-        //                 ]
-        //             )
-        //             if (!userInput) {
-        //                 error('Pipeline aborted by user')
-        //             }
-        //         }
-        //     }
-        // }
-
-        // stage('Terraform Apply') {
-        //     steps {
-        //         dir('terraform-prod') {
-        //             sh 'terraform apply -auto-approve plan-destroy-staging.out'
-        //         }
-        //     }
-        // }
-
         stage('Terraform plan to create new staging environment') {
             steps {
                 dir('terraform-prod') {
@@ -141,7 +63,7 @@ pipeline {
         stage('Terrafrom plan deploy to production') {
             steps {
                 dir('terraform-prod') {
-                    sh "terraform plan -no-color -out=deploy-production.out -var \'regenerate_image=true\' -var \'deploy_tag=${params.IMAGE_TAG}\' -var \'staging_deploy_tag=${params.IMAGE_TAG}\'"
+                    sh 'terraform plan -no-color -out=deploy-production.out -var regenerate_image=true -var deploy_tag=${IMAGE_TAG} -var staging_deploy_tag=${IMAGE_TAG} -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
                 }
             }
         }
