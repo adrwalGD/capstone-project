@@ -13,6 +13,16 @@ pipeline {
             }
         }
 
+        stage('Get latest tag') {
+            steps {
+                script {
+                    def latestTag = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
+                    echo "Latest tag is ${latestTag}"
+                    env.LATEST_TAG = latestTag
+                }
+            }
+        }
+
         stage('Terraform Init') {
             steps {
                 dir('terraform-prod') {
@@ -31,8 +41,9 @@ pipeline {
 
         stage('Terraform plan') {
             steps {
+                echo "Plan to deploy ${env.LATEST_TAG} version"
                 dir('terraform-prod') {
-                    sh 'terraform plan -no-color -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
+                    sh 'terraform plan -no-color -var deploy_tag=${LATEST_TAG} -var staging_deploy_tag=${LATEST_TAG} -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
                 }
             }
         }
