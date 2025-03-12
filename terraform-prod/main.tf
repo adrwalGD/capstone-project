@@ -129,40 +129,44 @@ module "firewall" {
   virtual_network_name = module.network_module.vnet_name
   load_balancer_ip     = module.load_balancer.private_ip
   resources_subnet_ip  = "10.0.2.0/24"
-  resource_subnet_id = module.network_module.subnet_id
-  fw_nat_rules = [
+  resource_subnet_id   = module.network_module.subnet_id
+  fw_nat_rules = concat(
+    [
     {
-      destination_ports = ["80"]
-      name = "http-lb-rule"
-      protocols = ["TCP"]
-      priority = 100
-      source_addresses = ["*"]
+        destination_ports  = ["80"]
+        name               = "http-lb-rule"
+        protocols          = ["TCP"]
+        priority           = 100
+        source_addresses   = ["*"]
       translated_address = module.load_balancer.private_ip
-      translated_port = 80
-    },
+        translated_port    = 80
+      }
+    ],
+    module.vm_image.vm_private_ip != null ? [
     {
       destination_ports = ["8080"]
-      name = "staging-app-rule"
-      protocols = ["TCP"]
-      priority = 200
-      source_addresses = ["*"]
+        name              = "staging-app-rule"
+        protocols         = ["TCP"]
+        priority          = 200
+        source_addresses  = ["*"]
       # translated_address = module.vm_image.vm_private_ip != null ? module.vm_image.vm_private_ip : "1.1.1.1"
       # above better but Azure takes 8-10 minutes to to update firewall role. So below and targetting only certain modules (vm_image) is faster for development
       translated_address = module.vm_image.vm_private_ip
-      translated_port = 80
+        translated_port    = 80
     },
     {
-      name = "staging-vm-ssh-rule"
-      source_addresses = ["*"]
+        name              = "staging-vm-ssh-rule"
+        source_addresses  = ["*"]
       destination_ports = ["22"]
-      translated_port = 22
+        translated_port   = 22
       # translated_address = module.vm_image.vm_private_ip != null ? module.vm_image.vm_private_ip : "1.1.1.1"
       # above better but Azure takes 8-10 minutes to to update firewall role. So below and targetting only certain modules (vm_image) is faster for development
       translated_address = module.vm_image.vm_private_ip
-      protocols = ["TCP"]
-      priority = 300
+        protocols          = ["TCP"]
+        priority           = 300
     }
-  ]
+    ] : []
+  )
   fw_network_rules = [
     {
       action = "Allow"
