@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'IMAGE_TAG', defaultValue: 'latest', description: 'The tag of the image to deploy')
+        string(name: 'STAGING_IMAGE_TAG', defaultValue: 'latest', description: 'The tag of the image to deploy to staging environment')
+        string(name: 'PROD_IMAGE_TAG', defaultValue: 'latest', description: 'The tag of the image to deploy to production environment')
     }
 
     environment {
@@ -30,7 +31,7 @@ pipeline {
         stage('Terraform plan to create new staging environment') {
             steps {
                 dir('terraform-prod') {
-                    sh 'terraform plan -no-color -out=create-staging.out -var regenerate_image=true -var staging_deploy_tag=${IMAGE_TAG} -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
+                    sh 'terraform plan -no-color -out=create-staging.out -var regenerate_image=true -var deploy_tag=${PROD_IMAGE_TAG} -var staging_deploy_tag=${STAGING_IMAGE_TAG} -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
                 }
             }
         }
@@ -63,7 +64,7 @@ pipeline {
         stage('Terrafrom plan deploy to production') {
             steps {
                 dir('terraform-prod') {
-                    sh 'terraform plan -no-color -out=deploy-production.out -var regenerate_image=true -var deploy_tag=${IMAGE_TAG} -var staging_deploy_tag=${IMAGE_TAG} -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
+                    sh 'terraform plan -no-color -out=deploy-production.out -var regenerate_image=true -var deploy_tag=${PROD_IMAGE_TAG} -var staging_deploy_tag=${STAGING_IMAGE_TAG} -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
                 }
             }
         }
