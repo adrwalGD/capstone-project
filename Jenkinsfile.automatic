@@ -23,7 +23,7 @@ pipeline {
         stage('Terraform validate') {
             steps {
                 dir('terraform-prod') {
-                    sh "terraform validate"
+                    sh "terraform validate -no-color"
                 }
             }
         }
@@ -31,7 +31,7 @@ pipeline {
         stage('Terraform plan') {
             steps {
                 dir('terraform-prod') {
-                    sh "terraform plan"
+                    sh "terraform plan -no-color"
                 }
             }
         }
