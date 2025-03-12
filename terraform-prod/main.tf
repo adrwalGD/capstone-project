@@ -247,11 +247,11 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     }
   }
 
-  lifecycle {
-    replace_triggered_by = [
-      terraform_data.redeploy
-    ]
-  }
+  # lifecycle {
+  #   replace_triggered_by = [
+  #     terraform_data.redeploy
+  #   ]
+  # }
 
   extension {
     name                 = "adrwal-vmss-script-landing-page-script"
