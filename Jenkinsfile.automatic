@@ -30,8 +30,10 @@ pipeline {
 
         stage('Terraform plan') {
             steps {
-                dir('terraform-prod') {
-                    sh "terraform plan -no-color"
+                withCredentials([usernamePassword(credentialsId: 'azure-db-user-pass', usernameVariable: 'DB_USER', passwordVariable: 'DB_PASS')]) {
+                    dir('terraform-prod') {
+                        sh "terraform plan -no-color -var \'azure_db_login=${DB_USER}\' -var \'azure_db_password=${DB_PASS}\'"
+                    }
                 }
             }
         }

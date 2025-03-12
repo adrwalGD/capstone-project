@@ -33,3 +33,13 @@ variable "staging_deploy_tag" {
   description = "Tag for the staging deployment"
   default     = "latest"
 }
+
+variable "azure_db_login" {
+  type        = string
+  description = "Azure DB login"
+}
+
+variable "azure_db_password" {
+  type        = string
+  description = "Azure DB password"
+}

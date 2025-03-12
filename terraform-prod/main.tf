@@ -42,8 +42,8 @@ resource "azurerm_mysql_flexible_server" "my_sql_db" {
   name                   = "adrwal-mysql-fs"
   resource_group_name    = azurerm_resource_group.rg.name
   location               = azurerm_resource_group.rg.location
-  administrator_login    = "adrwalpetclinic"
-  administrator_password = "Petclinicmodule123"
+  administrator_login    = var.azure_db_login
+  administrator_password = var.azure_db_password
   backup_retention_days  = 7
   sku_name               = "B_Standard_B1ms"
   version                = "8.0.21"
@@ -201,8 +201,8 @@ module "vm_image" {
 }
 
 
-resource "terraform_data" "redeploy" {
-  input = false
+resource "terraform_data" "redeploy_prod" {
+  input = var.deploy_tag ? var.deploy_tag : terraform_data.redeploy_prod
 }
 
 resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
