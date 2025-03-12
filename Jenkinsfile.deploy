@@ -101,6 +101,13 @@ pipeline {
                 sh'mysqladmin -h adrwal-mysql-fs.mysql.database.azure.com -u ${AZURE_DB_CREDS_USR} -p${AZURE_DB_CREDS_PSW} ping'
             }
         }
+
+        stage('Print correctly deployed image tags') {
+            steps {
+                echo "Staging environment succesfully deployed with image tag: ${STAGING_IMAGE_TAG}"
+                echo "Production environment succesfully deployed with image tag: ${NEW_PROD_IMAGE_TAG}"
+            }
+        }
     }
 
     post {
