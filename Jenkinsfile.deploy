@@ -96,6 +96,11 @@ pipeline {
             }
         }
 
+        stage('Confirm production databse is accessible') {
+            steps {
+                sh'mysqladmin -h adrwal-mysql-fs.mysql.database.azure.com -u ${AZURE_DB_CREDS_USR} -p${AZURE_DB_CREDS_PSW} ping'
+            }
+        }
     }
 
     post {
