@@ -201,9 +201,9 @@ module "vm_image" {
 }
 
 
-resource "terraform_data" "redeploy_prod" {
-  input = var.deploy_tag ? var.deploy_tag : terraform_data.redeploy_prod
-}
+# resource "terraform_data" "redeploy_prod" {
+#   input = var.deploy_tag ? var.deploy_tag : terraform_data.redeploy_prod
+# }
 
 resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
   name                = "adrwal-linux-vm-scale-set"
