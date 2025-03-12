@@ -107,7 +107,7 @@ pipeline {
         stage('Terraform plan to create new staging environment') {
             steps {
                 dir('terraform-prod') {
-                    sh "terraform plan -out=create-staging.out -var \'regenerate_image=true\' -var \'staging_deploy_tag=${params.IMAGE_TAG}\'"
+                    sh "terraform plan -no-color -out=create-staging.out -var \'regenerate_image=true\' -var \'staging_deploy_tag=${params.IMAGE_TAG}\'"
                 }
             }
         }
@@ -132,7 +132,7 @@ pipeline {
         stage('Terraform Apply staging') {
             steps {
                 dir('terraform-prod') {
-                    sh 'terraform apply -auto-approve create-staging.out'
+                    sh 'terraform apply -no-color -auto-approve create-staging.out'
                 }
             }
         }
@@ -140,7 +140,7 @@ pipeline {
         stage('Terrafrom plan deploy to production') {
             steps {
                 dir('terraform-prod') {
-                    sh "terraform plan -out=deploy-production.out -var \'regenerate_image=true\' -var \'deploy_tag=${params.IMAGE_TAG}\' -var \'staging_deploy_tag=${params.IMAGE_TAG}\'"
+                    sh "terraform plan -no-color -out=deploy-production.out -var \'regenerate_image=true\' -var \'deploy_tag=${params.IMAGE_TAG}\' -var \'staging_deploy_tag=${params.IMAGE_TAG}\'"
                 }
             }
         }
@@ -165,7 +165,7 @@ pipeline {
         stage('Terraform Apply prod') {
             steps {
                 dir('terraform-prod') {
-                    sh 'terraform apply -auto-approve deploy-production.out'
+                    sh 'terraform apply -no-color -auto-approve deploy-production.out'
                 }
             }
         }
