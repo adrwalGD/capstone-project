@@ -1,0 +1,13 @@
+---
+- name: Install mysqladmin on a Ubuntu machine
+  hosts: jenkins-vm
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+
+    - name: Install mysqladmin
+      ansible.builtin.apt:
+        name: mysql-client
+        state: present
