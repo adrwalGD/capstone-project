@@ -32,7 +32,7 @@ pipeline {
         stage('Terraform plan') {
             steps {
                 dir('terraform-prod') {
-                    sh 'terraform plan -no-color -var azure_db_login=${DB_USER} -var azure_db_password=${DB_PASS}'
+                    sh 'terraform plan -no-color -var azure_db_login=${AZURE_DB_CREDS_USR} -var azure_db_password=${AZURE_DB_CREDS_PSW}'
                 }
             }
         }
