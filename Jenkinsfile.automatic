@@ -15,10 +15,12 @@ pipeline {
 
         stage('Get latest tag') {
             steps {
-                script {
-                    def latestTag = sh(script: 'git describe --tags --abbrev=0', returnStdout: true).trim()
-                    echo "Latest tag is ${latestTag}"
-                    env.LATEST_TAG = latestTag
+                sshagent(['github-ssh']) {
+                    script {
+                        def latestTag = sh(script: 'git ls-remote --tags --sort=-v:refname git@github.com:adrwalGD/capstone-module-petclinic.git | awk \'{print $2}\' | sed \'s/^refs\\/tags\\///\' | head -n1', returnStdout: true).trim()
+                        echo "Latest tag is ${latestTag}"
+                        env.LATEST_TAG = latestTag
+                    }
                 }
             }
         }
