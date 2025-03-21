@@ -51,7 +51,7 @@ resource "azurerm_virtual_machine" "base_temp_vm" {
     disable_password_authentication = true
     ssh_keys {
       key_data = file(var.ssh_keys_file_path)
-      path = "/home/azureuser/.ssh/authorized_keys"
+      path     = "/home/azureuser/.ssh/authorized_keys"
     }
   }
 

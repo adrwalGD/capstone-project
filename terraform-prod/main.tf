@@ -191,7 +191,7 @@ module "vm_image" {
   provision_script    = templatefile("./scripts/init.sh.tpl", { acr_user = azurerm_container_registry.acr.admin_username, acr_pass = azurerm_container_registry.acr.admin_password, acr_url = azurerm_container_registry.acr.login_server, image_tag = var.staging_deploy_tag })
   temp_vm_subnet_id   = module.network_module.subnet_id
   regenerate_image    = var.regenerate_image
-  ssh_keys_file_path = var.ssh_keys_file_path
+  ssh_keys_file_path  = var.ssh_keys_file_path
 }
 
 
