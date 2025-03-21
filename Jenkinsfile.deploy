@@ -103,6 +103,21 @@ pipeline {
             }
         }
 
+        stage("Application health check") {
+            steps {
+                script {
+                    def ip = sh(script: 'terraform output | grep firewall_pip | sed -E \'s/.*firewall_pip = "(.*)"/\\1/\'', returnStdout: true).trim()
+                    def response = sh(script: "curl -s -o /dev/null -w \"%{http_code}\" http://${ip}/", returnStdout: true).trim()
+
+                    if (response != '200') {
+                        error "Health check failed! Received HTTP status: ${response}"
+                    } else {
+                        echo "Health check passed! Application is healthy."
+                    }
+                }
+            }
+        }
+
         stage('Print correctly deployed image tags') {
             steps {
                 echo "Staging environment succesfully deployed with image tag: ${STAGING_IMAGE_TAG}"
