@@ -44,11 +44,15 @@ resource "azurerm_virtual_machine" "base_temp_vm" {
   os_profile {
     computer_name  = "tempvm"
     admin_username = "azureuser"
-    admin_password = "P@ssw0rd1234!"
+    # admin_password = "P@ssw0rd1234!"
   }
 
   os_profile_linux_config {
-    disable_password_authentication = false
+    disable_password_authentication = true
+    ssh_keys {
+      key_data = file(var.ssh_keys_file_path)
+      path = "/home/azureuser/.ssh/authorized_keys"
+    }
   }
 
   count = var.regenerate_image ? 1 : 0

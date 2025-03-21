@@ -29,3 +29,8 @@ variable "resources_name_prefix" {
   type    = string
   default = "grid-image-"
 }
+
+variable "ssh_keys_file_path" {
+  type        = string
+  description = "Path to the SSH keys file"
+}
