@@ -43,3 +43,9 @@ variable "azure_db_password" {
   type        = string
   description = "Azure DB password"
 }
+
+variable "ssh_keys_file_path" {
+  type = string
+  description = "Path to the public SSH keys file to use on VMs"
+  default = "./ssh-keys"
+}

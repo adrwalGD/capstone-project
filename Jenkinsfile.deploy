@@ -13,6 +13,7 @@ pipeline {
         ACR_LOGIN_SERVER = "adrwalacr.azurecr.io"
         ACR_USER_PASS_CREDS_ID = 'ACR-user-pass'
         AZURE_DB_CREDS = credentials('azure-db-user-pass')
+        TF_VAR_ssh_keys_file_path = credentials('public-ssh-keys')
     }
 
     stages {

@@ -4,6 +4,7 @@ pipeline {
     environment {
         ARM_SUBSCRIPTION_ID = "afa1a461-3f97-478d-a062-c8db00c98741"
         AZURE_DB_CREDS = credentials('azure-db-user-pass')
+        TF_VAR_ssh_keys_file_path = credentials('public-ssh-keys')
     }
 
     stages {
