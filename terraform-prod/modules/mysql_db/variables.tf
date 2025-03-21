@@ -19,13 +19,13 @@ variable "location" {
 }
 
 variable "sku_name" {
-    type        = string
-    description = "SKU of the VMs"
-    default     = "B_Standard_B1ms"
+  type        = string
+  description = "SKU of the VMs"
+  default     = "B_Standard_B1ms"
 }
 
 variable "db_name" {
-    type        = string
-    description = "Name of the database"
-    default     = "petclinic"
+  type        = string
+  description = "Name of the database"
+  default     = "petclinic"
 }
