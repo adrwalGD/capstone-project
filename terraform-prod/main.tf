@@ -38,32 +38,40 @@ resource "azurerm_container_registry" "acr" {
 
 # ========== start mysql db ============
 
-resource "azurerm_mysql_flexible_server" "my_sql_db" {
-  name                   = "adrwal-mysql-fs"
-  resource_group_name    = azurerm_resource_group.rg.name
-  location               = azurerm_resource_group.rg.location
-  administrator_login    = var.azure_db_login
-  administrator_password = var.azure_db_password
-  backup_retention_days  = 7
-  sku_name               = "B_Standard_B1ms"
-  version                = "8.0.21"
-  zone                   = 2
-}
+# resource "azurerm_mysql_flexible_server" "my_sql_db" {
+#   name                   = "adrwal-mysql-fs"
+#   resource_group_name    = azurerm_resource_group.rg.name
+#   location               = azurerm_resource_group.rg.location
+#   administrator_login    = var.azure_db_login
+#   administrator_password = var.azure_db_password
+#   backup_retention_days  = 7
+#   sku_name               = "B_Standard_B1ms"
+#   version                = "8.0.21"
+#   zone                   = 2
+# }
 
-resource "azurerm_mysql_flexible_database" "mysql_db_petclinic" {
-  name                = "petclinic"
-  resource_group_name = azurerm_resource_group.rg.name
-  server_name         = azurerm_mysql_flexible_server.my_sql_db.name
-  charset             = "utf8mb3"
-  collation           = "utf8mb3_general_ci"
-}
+# resource "azurerm_mysql_flexible_database" "mysql_db_petclinic" {
+#   name                = "petclinic"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   server_name         = azurerm_mysql_flexible_server.my_sql_db.name
+#   charset             = "utf8mb3"
+#   collation           = "utf8mb3_general_ci"
+# }
 
-resource "azurerm_mysql_flexible_server_firewall_rule" "allow_all" {
-  name                = "all"
+# resource "azurerm_mysql_flexible_server_firewall_rule" "allow_all" {
+#   name                = "all"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   server_name         = azurerm_mysql_flexible_server.my_sql_db.name
+#   start_ip_address    = "0.0.0.0"
+#   end_ip_address      = "255.255.255.255"
+# }
+
+module "mysql_db" {
+  source              = "./modules/mysql_db"
+  azure_db_login      = var.azure_db_login
+  azure_db_password   = var.azure_db_password
   resource_group_name = azurerm_resource_group.rg.name
-  server_name         = azurerm_mysql_flexible_server.my_sql_db.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "255.255.255.255"
+  location            = azurerm_resource_group.rg.location
 }
 
 # ========= End mysql db =========
@@ -254,7 +262,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "linux_vm_scale_set" {
     type_handler_version = "2.0"
     protected_settings   = <<SETTINGS
         {
-            "script": "${base64encode(templatefile(var.deploy_script_path, { image_tag = var.deploy_tag, mysql_fqdn = azurerm_mysql_flexible_server.my_sql_db.fqdn, mysql_user = azurerm_mysql_flexible_server.my_sql_db.administrator_login, mysql_pass = azurerm_mysql_flexible_server.my_sql_db.administrator_password }))}"
+            "script": "${base64encode(templatefile(var.deploy_script_path, { image_tag = var.deploy_tag, mysql_fqdn = module.mysql_db.fqdn, mysql_user = module.mysql_db.username, mysql_pass = module.mysql_db.password }))}"
         }
     SETTINGS
   }

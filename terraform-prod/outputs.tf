@@ -8,7 +8,7 @@ output "acr_admin_password" {
 }
 
 output "mysql_db_fqdn" {
-  value = azurerm_mysql_flexible_server.my_sql_db.fqdn
+  value = module.mysql_db.fqdn
 }
 
 output "firewall_pip" {
