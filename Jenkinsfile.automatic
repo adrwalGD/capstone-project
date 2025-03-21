@@ -33,6 +33,14 @@ pipeline {
             }
         }
 
+        stage("Check Terraform formatting") {
+            steps {
+                dir('terraform-prod') {
+                    sh "terraform fmt -check -no-color -recursive"
+                }
+            }
+        }
+
         stage('Terraform validate') {
             steps {
                 dir('terraform-prod') {
